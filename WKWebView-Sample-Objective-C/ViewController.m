@@ -10,36 +10,81 @@
 #import <WebKit/WebKit.h>
 
 @interface ViewController () <WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler>
+@property (nonatomic) BOOL whatsapp;
+@property (nonatomic) BOOL lockInterfaceRotation;
 @property (weak, nonatomic) IBOutlet UIView *baseView;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (nonatomic) WKWebView *webView;
 @end
 
-static NSString *const RequestURL = @"https://www.apple.com/";
+static NSString *const RequestURL = @"https://pmto.sessiedatabase.nl/ivieww.php?movie=nl132557.opt.mp4";
+static NSString *const RequestAPP = @"https://web.whatsapp.com/";
+static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https://video.sessionportal.net/public/mp4:sportplezier.mp4/playlist.m3u8";
 
 @implementation ViewController
 
+- (BOOL)shouldAutorotate
+{
+    // Disable autorotation of the interface when recording is in progress.
+    return ![self lockInterfaceRotation];
+}
+
 #pragma mark - LifeCycle Methods
 - (void)viewDidLoad {
+    NSString *model = [[UIDevice currentDevice] model];
+    NSLog(@"Model: %@", model);
+    if ([model isEqual: @"iPad"]) {
+        [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationLandscapeRight) forKey:@"orientation"];
+        [UINavigationController attemptRotationToDeviceOrientation];
+        [self setLockInterfaceRotation:YES];
+    }
+    [self setWhatsapp:YES];
     [super viewDidLoad];
     [self setup];
 }
 
 #pragma mark - Private Methods
 - (void)setup {
-    [self setupWebView];
-    [self setURL: RequestURL];
-}
+    if (!self.whatsapp) {
+        NSString *urlAddress = [NSString stringWithFormat:RequestURL];
+        //NSString *postString = [NSString stringWithFormat:@"uid=%ld&username=%@&password=%@&height=%d&width=%d&fh=%d&fw=%d",
+        //                        (long)44,
+        //                        @"username",
+        //                        @"password",
+        //                        352,
+        //                        288,
+        //                        448,
+        //                        256
+        //                        ];
+        //NSData *data = [postString dataUsingEncoding:NSASCIIStringEncoding];
+        NSLog(@"URL on portal: %@", urlAddress);
+        //NSLog(@"postString %@", postString);
+        NSURL *url = [NSURL URLWithString:urlAddress];
+        NSMutableURLRequest *requestObj = [[NSMutableURLRequest alloc] initWithURL:url];
+        //[requestObj setHTTPMethod:@"POST"];
+        //[requestObj setHTTPBody:data];
 
-- (void)setupWebView {
-    self.webView = [[WKWebView alloc] initWithFrame: CGRectZero
-                                      configuration: [self setJS]];
-    self.webView.UIDelegate = self;
-    self.webView.navigationDelegate = self;
-    self.webView.allowsBackForwardNavigationGestures = YES;
-    [self.baseView addSubview: self.webView];
-    [self setupWKWebViewConstain: self.webView];
-    
+        self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(607, 165, 352, 292) configuration: [self setJS]];
+        self.webView.navigationDelegate = self;
+        self.webView.UIDelegate = self;
+        [self.view addSubview:_webView];
+        [self.webView loadRequest:requestObj];
+        
+        self.webView.layer.backgroundColor = [UIColor clearColor].CGColor;
+        self.webView.layer.borderColor = [UIColor grayColor].CGColor;
+        self.webView.layer.borderWidth = 5.0;
+    } else {
+        NSString *urlAddress = [NSString stringWithFormat:RequestAPP];
+        NSURL *url = [NSURL URLWithString:urlAddress];
+        NSMutableURLRequest *requestObj = [[NSMutableURLRequest alloc] initWithURL:url];
+
+        self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 1024, 720) configuration: [self setJS]];
+        self.webView.navigationDelegate = self;
+        self.webView.UIDelegate = self;
+        self.webView.customUserAgent = @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/601.6.17 (KHTML, like Gecko) Version/9.1.1 Safari/601.6.17";
+        [self.view addSubview:_webView];
+        [self.webView loadRequest:requestObj];
+    }
 }
 
 - (void)setURL:(NSString *)requestURLString {
@@ -144,7 +189,9 @@ static NSString *const RequestURL = @"https://www.apple.com/";
 }
 
 - (IBAction)refresh:(id)sender {
-    [self.webView reload];
+    [self setWhatsapp:!self.whatsapp];
+    [self setup];
+    //[self.webView reload];
 }
 
 - (IBAction)jsTrigger:(id)sender {

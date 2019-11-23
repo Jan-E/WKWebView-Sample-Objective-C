@@ -38,6 +38,11 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
         [UINavigationController attemptRotationToDeviceOrientation];
         [self setLockInterfaceRotation:YES];
     }
+    if ([model isEqual: @"iPhone"]) {
+        [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationLandscapeRight) forKey:@"orientation"];
+        [UINavigationController attemptRotationToDeviceOrientation];
+        [self setLockInterfaceRotation:YES];
+    }
     [self setWhatsapp:YES];
     [super viewDidLoad];
     [self setup];
@@ -64,7 +69,12 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
         //[requestObj setHTTPMethod:@"POST"];
         //[requestObj setHTTPBody:data];
 
-        self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(607, 165, 352, 292) configuration: [self setJS]];
+        NSString *model = [[UIDevice currentDevice] model];
+        if ([model isEqual: @"iPhone"]) {
+            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 320) configuration: [self setJS]];
+        } else {
+            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(607, 165, 352, 292) configuration: [self setJS]];
+        }
         self.webView.navigationDelegate = self;
         self.webView.UIDelegate = self;
         [self.view addSubview:_webView];
@@ -78,7 +88,12 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
         NSURL *url = [NSURL URLWithString:urlAddress];
         NSMutableURLRequest *requestObj = [[NSMutableURLRequest alloc] initWithURL:url];
 
-        self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 1024, 720) configuration: [self setJS]];
+        NSString *model = [[UIDevice currentDevice] model];
+        if ([model isEqual: @"iPhone"]) {
+            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 576, 312) configuration: [self setJS]];
+        } else {
+            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 1024, 720) configuration: [self setJS]];
+        }
         self.webView.navigationDelegate = self;
         self.webView.UIDelegate = self;
         self.webView.customUserAgent = @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/601.6.17 (KHTML, like Gecko) Version/9.1.1 Safari/601.6.17";
@@ -191,6 +206,7 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
 - (IBAction)refresh:(id)sender {
     [self setWhatsapp:!self.whatsapp];
     [self setup];
+    [self setLockInterfaceRotation:NO];
     //[self.webView reload];
 }
 

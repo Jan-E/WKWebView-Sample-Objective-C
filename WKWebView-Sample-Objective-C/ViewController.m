@@ -92,7 +92,7 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
         if ([model isEqual: @"iPhone"]) {
             self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 576, 312) configuration: [self setJS]];
         } else {
-            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 1024, 720) configuration: [self setJS]];
+            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 1024, 760) configuration: [self setJS]];
         }
         self.webView.navigationDelegate = self;
         self.webView.UIDelegate = self;

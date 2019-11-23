@@ -15,6 +15,7 @@
 @property (weak, nonatomic) IBOutlet UIView *baseView;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (nonatomic) WKWebView *webView;
+@property (strong,atomic) NSString *model;
 @end
 
 static NSString *const RequestURL = @"https://pmto.sessiedatabase.nl/ivieww.php?movie=nl132557.opt.mp4";
@@ -31,14 +32,14 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
 
 #pragma mark - LifeCycle Methods
 - (void)viewDidLoad {
-    NSString *model = [[UIDevice currentDevice] model];
-    NSLog(@"Model: %@", model);
-    if ([model isEqual: @"iPad"]) {
+    self.model = [[UIDevice currentDevice] model];
+    NSLog(@"Model: %@", self.model);
+    if ([self.model isEqual: @"iPad"]) {
         [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationLandscapeRight) forKey:@"orientation"];
         [UINavigationController attemptRotationToDeviceOrientation];
         [self setLockInterfaceRotation:YES];
     }
-    if ([model isEqual: @"iPhone"]) {
+    if ([self.model isEqual: @"iPhone"]) {
         [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationLandscapeRight) forKey:@"orientation"];
         [UINavigationController attemptRotationToDeviceOrientation];
         [self setLockInterfaceRotation:YES];
@@ -69,8 +70,7 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
         //[requestObj setHTTPMethod:@"POST"];
         //[requestObj setHTTPBody:data];
 
-        NSString *model = [[UIDevice currentDevice] model];
-        if ([model isEqual: @"iPhone"]) {
+        if ([self.model isEqual: @"iPhone"]) {
             self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 320) configuration: [self setJS]];
         } else {
             self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(607, 165, 352, 292) configuration: [self setJS]];
@@ -88,9 +88,9 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
         NSURL *url = [NSURL URLWithString:urlAddress];
         NSMutableURLRequest *requestObj = [[NSMutableURLRequest alloc] initWithURL:url];
 
-        NSString *model = [[UIDevice currentDevice] model];
-        if ([model isEqual: @"iPhone"]) {
-            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 576, 312) configuration: [self setJS]];
+        if ([self.model isEqual: @"iPhone"]) {
+            int extraSpace = !self.lockInterfaceRotation ? 8 : 0;
+            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 576, 312 + extraSpace) configuration: [self setJS]];
         } else {
             self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 1024, 760) configuration: [self setJS]];
         }
@@ -207,6 +207,15 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
     [self setWhatsapp:!self.whatsapp];
     [self setup];
     [self setLockInterfaceRotation:NO];
+    if ([self.model isEqual: @"iPhone"]) {
+        if (!self.whatsapp) {
+            [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationPortrait) forKey:@"orientation"];
+            [UINavigationController attemptRotationToDeviceOrientation];
+        } else {
+            [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationLandscapeRight) forKey:@"orientation"];
+            [UINavigationController attemptRotationToDeviceOrientation];
+        }
+    }
     //[self.webView reload];
 }
 

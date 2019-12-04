@@ -10,7 +10,7 @@
 #import <WebKit/WebKit.h>
 
 @interface ViewController () <WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler>
-@property (nonatomic) BOOL whatsapp;
+@property (nonatomic) NSInteger whatsapp;
 @property (nonatomic) BOOL lockInterfaceRotation;
 @property (weak, nonatomic) IBOutlet UIView *baseView;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
@@ -19,6 +19,7 @@
 @end
 
 static NSString *const RequestURL = @"https://pmto.sessiedatabase.nl/ivieww.php?movie=nl132557.opt.mp4";
+static NSString *const RequestRSP = @"https://rading.sessionportal.net/tfrshoww.php?movie=ra000013.opt.mp4";
 static NSString *const RequestAPP = @"https://web.whatsapp.com/";
 static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https://video.sessionportal.net/public/mp4:sportplezier.mp4/playlist.m3u8";
 
@@ -44,14 +45,14 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
         [UINavigationController attemptRotationToDeviceOrientation];
         [self setLockInterfaceRotation:YES];
     }
-    [self setWhatsapp:YES];
+    [self setWhatsapp:2];
     [super viewDidLoad];
     [self setup];
 }
 
 #pragma mark - Private Methods
 - (void)setup {
-    if (!self.whatsapp) {
+    if (self.whatsapp == 0) {
         NSString *urlAddress = [NSString stringWithFormat:RequestURL];
         //NSString *postString = [NSString stringWithFormat:@"uid=%ld&username=%@&password=%@&height=%d&width=%d&fh=%d&fw=%d",
         //                        (long)44,
@@ -83,7 +84,40 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
         self.webView.layer.backgroundColor = [UIColor clearColor].CGColor;
         self.webView.layer.borderColor = [UIColor grayColor].CGColor;
         self.webView.layer.borderWidth = 5.0;
+    } else if (self.whatsapp == 1) {
+        NSString *urlAddress = [NSString stringWithFormat:RequestRSP];
+        //NSString *postString = [NSString stringWithFormat:@"uid=%ld&username=%@&password=%@&height=%d&width=%d&fh=%d&fw=%d",
+        //                        (long)44,
+        //                        @"username",
+        //                        @"password",
+        //                        352,
+        //                        288,
+        //                        448,
+        //                        256
+        //                        ];
+        //NSData *data = [postString dataUsingEncoding:NSASCIIStringEncoding];
+        NSLog(@"URL on portal: %@", urlAddress);
+        //NSLog(@"postString %@", postString);
+        NSURL *url = [NSURL URLWithString:urlAddress];
+        NSMutableURLRequest *requestObj = [[NSMutableURLRequest alloc] initWithURL:url];
+        //[requestObj setHTTPMethod:@"POST"];
+        //[requestObj setHTTPBody:data];
+
+        if ([self.model isEqual: @"iPhone"]) {
+            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 320) configuration: [self setJS]];
+        } else {
+            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(607, 165, 352, 292) configuration: [self setJS]];
+        }
+        self.webView.navigationDelegate = self;
+        self.webView.UIDelegate = self;
+        [self.view addSubview:_webView];
+        [self.webView loadRequest:requestObj];
+        
+        self.webView.layer.backgroundColor = [UIColor clearColor].CGColor;
+        self.webView.layer.borderColor = [UIColor grayColor].CGColor;
+        self.webView.layer.borderWidth = 5.0;
     } else {
+        // self.whatsapp == 2
         NSString *urlAddress = [NSString stringWithFormat:RequestAPP];
         NSURL *url = [NSURL URLWithString:urlAddress];
         NSMutableURLRequest *requestObj = [[NSMutableURLRequest alloc] initWithURL:url];
@@ -92,7 +126,7 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
             int extraSpace = !self.lockInterfaceRotation ? 8 : 0;
             self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 576, 312 + extraSpace) configuration: [self setJS]];
         } else {
-            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 1024, 760) configuration: [self setJS]];
+            self.webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 1024, 758) configuration: [self setJS]];
         }
         self.webView.navigationDelegate = self;
         self.webView.UIDelegate = self;
@@ -204,11 +238,13 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
 }
 
 - (IBAction)refresh:(id)sender {
-    [self setWhatsapp:!self.whatsapp];
+    // cycle 0 - 1 - 2 = URL - RSP - APP
+    [self setWhatsapp:self.whatsapp+1];
+    if (self.whatsapp == 3) [self setWhatsapp:0];
     [self setup];
     [self setLockInterfaceRotation:NO];
     if ([self.model isEqual: @"iPhone"]) {
-        if (!self.whatsapp) {
+        if (self.whatsapp != 2) {
             [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationPortrait) forKey:@"orientation"];
             [UINavigationController attemptRotationToDeviceOrientation];
         } else {

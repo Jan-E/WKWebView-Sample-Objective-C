@@ -20,7 +20,7 @@
 
 static NSString *const RequestURL = @"https://pmto.sessiedatabase.nl/ivieww.php?movie=nl132557.opt.mp4";
 static NSString *const RequestRSP = @"https://rading.sessionportal.net/tfrshoww.php?movie=ra000013.opt.mp4";
-static NSString *const RequestAPP = @"https://web.whatsapp.com/";
+static NSString *const RequestAPP = @"https://fimpcentral.net/";
 static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https://video.sessionportal.net/public/mp4:sportplezier.mp4/playlist.m3u8";
 
 @implementation ViewController

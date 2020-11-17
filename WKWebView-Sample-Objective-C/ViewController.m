@@ -20,7 +20,8 @@
 
 static NSString *const RequestURL = @"https://pmto.sessiedatabase.nl/ivieww.php?movie=nl132557.opt.mp4";
 static NSString *const RequestRSP = @"https://rading.sessionportal.net/tfrshoww.php?movie=ra000013.opt.mp4";
-static NSString *const RequestAPP = @"https://fimpcentral.net/";
+//static NSString *const RequestAPP = @"https://fimpcentral.net/";
+static NSString *const RequestAPP = @"https://web.whatsapp.com/";
 static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https://video.sessionportal.net/public/mp4:sportplezier.mp4/playlist.m3u8";
 
 @implementation ViewController
@@ -130,7 +131,7 @@ static NSString *const RequestMAC = @"https://hls-js.netlify.com/demo/?src=https
         }
         self.webView.navigationDelegate = self;
         self.webView.UIDelegate = self;
-        self.webView.customUserAgent = @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/601.6.17 (KHTML, like Gecko) Version/9.1.1 Safari/601.6.17";
+        self.webView.customUserAgent = @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Safari/605.1.15";
         [self.view addSubview:_webView];
         [self.webView loadRequest:requestObj];
     }
